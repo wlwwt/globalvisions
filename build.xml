@@ -163,9 +163,9 @@
 	
 	<!-- project specific post deployment actions -->
 	<target name="post_deploy">
-		<echo message="Changing permission g+w to ${ssh.documentroot}/typo3conf/ext"/>
+		<echo message="Changing permission ugo+rx to ${ssh.documentroot}/typo3conf/ext"/>
 		<!-- change permissions for ext folder -->
-		<chmod perm="g+w">
+		<chmod perm="ugo+rx">
 			<fileset dir="${ssh.documentroot}/typo3conf/ext">
 				<!-- <exclude name="**/trial/**"/> -->
 			</fileset>
