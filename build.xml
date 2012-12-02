@@ -29,11 +29,6 @@
 		<echo>--------------------------------</echo>
 	</target>
 
-	<!-- cleans the build directory -->
-	<target name="clean">
-		<delete dir="${build.dir}" includeemptydirs="true" failonerror="true"/>
-	</target>
-
 	<!-- =======================================================================
 
 	Deploy
@@ -79,16 +74,14 @@
 		</antcall>
 
 		<!-- deploy files in docroot -->
-		<!--<scp username="${ssh.username}" password="${ssh.password}" passphrase="${ssh.passphrase}"-->
-		<!--keyfile="${ssh.privkeyfile}" host="${ssh.host}"-->
-		<!--todir="${ssh.username}:${ssh.password}@${ssh.host}:${ssh.documentroot}" trust="true">-->
-		<!--<fileset dir="./" defaultexcludes="true">-->
-		<!--<include name="humans.txt"/>-->
-		<!--<include name="robots.txt"/>-->
-		<!--<include name="crossdomain.xml"/>-->
-		<!--<include name="favicon.ico"/>-->
-		<!--</fileset>-->
-		<!--</scp>-->
+		<antcall target="remote_copy">
+			<param name="sourcefile" value="${build.dir}/humans.txt"/>
+			<param name="remotedir" value="${ssh.documentroot}"/>
+		</antcall>
+		<antcall target="remote_copy">
+			<param name="sourcefile" value="${build.dir}/robots.txt"/>
+			<param name="remotedir" value="${ssh.documentroot}"/>
+		</antcall>
 
 		<antcall target="remote_cleanup"/>
 		<antcall target="post_deploy"/>
@@ -115,6 +108,7 @@
 				<exclude name="**/ExtensionBuilder.json"/>
 				<exclude name="build.xml"/>
 				<exclude name="build*properties"/>
+				<exclude name="README.md"/>
 				<exclude name="_typo3conf/"/><!-- exclude typo3conf -->
 				<exclude name="*.*"/><!-- exclude every file in basedir -->
 			</fileset>
@@ -161,12 +155,24 @@
 
 	<!-- removes temporary typo3temp/temp_cached* files -->
 	<target name="remote_cleanup">
-		<sshexec username="${ssh.username}" password="${ssh.password}"
-				 passphrase="${ssh.passphrase}"
-				 keyfile="${ssh.privkeyfile}" host="${ssh.host}" port="${ssh.port}"
-				 command="rm ${ssh.documentroot}/typo3conf/temp_CACHED*" outputproperty="SSHEXEC_OUT"
-				 failonerror="false" trust="true"/>
-		<echo message="delete temp_CACHED* returned: ${SSHEXEC_OUT}"/>
+		<delete>
+			<fileset dir="${ssh.documentroot}/typo3conf" includes="temp_CACHED*"/>
+		</delete>
+	</target>
+	
+	<!-- project specific post deployment actions -->
+	<target name="post_deploy">
+		<!-- change permissions for ext folder -->
+		<chmod perm="g+w">
+			<fileset dir="${ssh.documentroot}/typo3conf/ext">
+				<!-- <exclude name="**/trial/**"/> -->
+			</fileset>
+		</chmod>
+	</target>
+	
+	<!-- cleans the build directory -->
+	<target name="clean">
+		<delete dir="${build.dir}" includeemptydirs="true" failonerror="true"/>
 	</target>
 
 </project>
