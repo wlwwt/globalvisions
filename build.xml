@@ -142,7 +142,7 @@
 	 -->
 	<target name="remote_untar">
 		<echo message="Unpacking tarball ${remotetar} to ${remotedir}"/>
-		<untar src="${remotetar}" dest="${remotedir}"/>
+		<untar src="${remotetar}" dest="${remotedir}" compression="${compression}"/>
 	</target>
 
 	<!--
