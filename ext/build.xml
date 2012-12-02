@@ -1,0 +1,176 @@
+<?xml version="1.0"?>
+<project name="globalvisions" default="help" basedir=".">
+
+	<property name="ENVIRONMENT" value="test"/>
+	<property name="JOB_NAME" value="${ant.project.name}"/>
+	<property name="build.dir" value="/tmp/ant-build/${JOB_NAME}_${ENVIRONMENT}"/>
+	<!-- overload local settings (optional) -->
+	<property file="./build.${ENVIRONMENT}.properties"/>
+	<property file="./build.properties"/>
+	<tstamp>
+		<format property="CURRENT_TIME" pattern="yyyy-MM-dd_HHmmss" locale="de_DE"/>
+	</tstamp>
+	<property name="compression" value="gzip"/>
+
+	<target name="help">
+		<echo>Please specify a target!</echo>
+	</target>
+
+	<target name="init">
+		<available file="./build.${ENVIRONMENT}.properties" property="propFileAvailable" />
+		<fail unless="propFileAvailable" message="The build properties file 'build.${ENVIRONMENT}.properties' does not exist. Please verify the target ENVIRONMENT (-DENVIRONMENT=?) setting!"/>
+
+		<echo message="Build dir: ${build.dir}"/>
+		<mkdir dir="${build.dir}"/>
+		<echo>--------------------------------</echo>
+		<echo>Environment: ${ENVIRONMENT}</echo>
+		<echo>--------------------------------</echo>
+		<echo>Dir: ${ssh.documentroot}</echo>
+		<echo>--------------------------------</echo>
+	</target>
+
+	<!-- cleans the build directory -->
+	<target name="clean">
+		<delete dir="${build.dir}" includeemptydirs="true" failonerror="true"/>
+	</target>
+
+	<!-- =======================================================================
+
+	Deploy
+
+	======================================================================== -->
+
+	<target name="deploy" depends="package">
+		<echo>deploying</echo>
+
+		<!-- copy packages to remote -->
+		<antcall target="remote_copy">
+			<param name="remotedir" value="${ssh.documentroot}/typo3conf"/>
+			<param name="sourcefile" value="${build.dir}/ext_CURRENT.tar"/>
+		</antcall>
+
+		<!-- untar packages on remote -->
+		<antcall target="remote_untar">
+			<param name="remotedir" value="${ssh.documentroot}/typo3conf"/>
+			<param name="remotetar" value="${ssh.documentroot}/typo3conf/ext_CURRENT.tar"/>
+		</antcall>
+
+		<!-- remove remote packages -->
+		<antcall target="remote_rm">
+			<param name="remotefile" value="${ssh.documentroot}/typo3conf/ext_CURRENT.tar"/>
+		</antcall>
+
+		<!-- exchange packages by renaming -->
+		<echo message="Renaming ext-dir"/>
+		<move file="${ssh.documentroot}/typo3conf/ext" tofile="${ssh.documentroot}/typo3conf/ext_${CURRENT_TIME}"/>
+		<move file="${ssh.documentroot}/typo3conf/ext_CURRENT" tofile="${ssh.documentroot}/typo3conf/ext"/>
+
+		<!-- deploy the logging config into docroot -->
+		<!--<copy file="./logging.${APP}.xml" tofile="${build.dir}/logging.xml"/>-->
+		<copy file="./logging.xml" tofile="${build.dir}/logging.xml"/>
+		<echo file="${build.dir}/.htaccess">Deny from all</echo>
+		<sshexec username="${ssh.username}" password="${ssh.password}" passphrase="${ssh.passphrase}"
+				 keyfile="${ssh.privkeyfile}" host="${ssh.host}" port="${ssh.port}"
+				 command="mkdir -p ${ssh.documentroot}/log" outputproperty="SSHCMD_OUTPUT" trust="true"/>
+		<antcall target="remote_scp">
+			<param name="sourcefile" value="${build.dir}/.htaccess"/>
+			<param name="remotedir" value="${ssh.documentroot}/log/"/>
+		</antcall>
+		<antcall target="remote_scp">
+			<param name="sourcefile" value="${build.dir}/logging.xml"/>
+			<param name="remotedir" value="${ssh.documentroot}"/>
+		</antcall>
+
+		<!-- deploy files in docroot -->
+		<!--<scp username="${ssh.username}" password="${ssh.password}" passphrase="${ssh.passphrase}"-->
+		<!--keyfile="${ssh.privkeyfile}" host="${ssh.host}"-->
+		<!--todir="${ssh.username}:${ssh.password}@${ssh.host}:${ssh.documentroot}" trust="true">-->
+		<!--<fileset dir="./" defaultexcludes="true">-->
+		<!--<include name="humans.txt"/>-->
+		<!--<include name="robots.txt"/>-->
+		<!--<include name="crossdomain.xml"/>-->
+		<!--<include name="favicon.ico"/>-->
+		<!--</fileset>-->
+		<!--</scp>-->
+
+		<antcall target="remote_cleanup"/>
+		<antcall target="post_deploy"/>
+		<antcall target="clean"/>
+	</target>
+
+	<!-- =======================================================================
+
+	   Package
+
+	======================================================================== -->
+
+	<target name="package" depends="init">
+		<echo>building extensions</echo>
+
+		<delete dir="${build.dir}/" includeemptydirs="true" failonerror="true"/>
+		<mkdir dir="${build.dir}/ext_CURRENT"/>
+		<copy todir="${build.dir}/ext_CURRENT">
+			<fileset dir="./" followsymlinks="true" defaultexcludes="true">
+				<exclude name="**/.git/**"/>
+				<exclude name="**/.gitignore"/>
+				<exclude name="**/.idea/**"/>
+				<exclude name="**/nbproject/**"/>
+				<exclude name="**/ExtensionBuilder.json"/>
+				<exclude name="build.xml"/>
+				<exclude name="build*properties"/>
+				<exclude name="_typo3conf/"/><!-- exclude typo3conf -->
+				<exclude name="*.*"/><!-- exclude every file in basedir -->
+			</fileset>
+		</copy>
+		<tar destfile="${build.dir}/ext_CURRENT.tar" basedir="${build.dir}/" compression="${compression}" longfile="gnu"/>
+		<delete dir="${build.dir}/ext_CURRENT" includeemptydirs="true" failonerror="true"/>
+	</target>
+
+
+	<!-- =======================================================================
+	
+	Reusable Tasks
+	
+	======================================================================== -->
+
+	<!--
+		Copies a sourcefile to the remotedirectory
+		${remotedir} = remote directory
+		${sourcefile} = the file to copy
+	 -->
+	<target name="remote_copy">
+		<echo message="Copying ${sourcefile} to remote ${remotedir}"/>
+		<copy file="${sourcefile}" 
+			  todir="${remotedir}"/>
+	</target>
+
+	<!--
+		Untars the remote tarball to the given remotedir.
+		${remotedir} = remote directory
+		${remotetar} = the tar to unpack
+	 -->
+	<target name="remote_untar">
+		<echo message="Unpacking tarball ${remotetar} to ${remotedir}"/>
+		<untar src="${remotetar}" dest="${remotedir}"/>
+	</target>
+
+	<!--
+		Removes the remote file.
+		${remotefile} = the file to delete
+	 -->
+	<target name="remote_rm">
+		<delete file="${remotefile}"/>
+	</target>
+
+	<!-- removes temporary typo3temp/temp_cached* files -->
+	<target name="remote_cleanup">
+		<sshexec username="${ssh.username}" password="${ssh.password}"
+				 passphrase="${ssh.passphrase}"
+				 keyfile="${ssh.privkeyfile}" host="${ssh.host}" port="${ssh.port}"
+				 command="rm ${ssh.documentroot}/typo3conf/temp_CACHED*" outputproperty="SSHEXEC_OUT"
+				 failonerror="false" trust="true"/>
+		<echo message="delete temp_CACHED* returned: ${SSHEXEC_OUT}"/>
+	</target>
+
+</project>
+
