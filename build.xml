@@ -155,6 +155,7 @@
 
 	<!-- removes temporary typo3temp/temp_cached* files -->
 	<target name="remote_cleanup">
+		<echo message="Removing ${ssh.documentroot}/typo3conf/temp_CACHED* files"/>
 		<delete>
 			<fileset dir="${ssh.documentroot}/typo3conf" includes="temp_CACHED*"/>
 		</delete>
@@ -162,6 +163,7 @@
 	
 	<!-- project specific post deployment actions -->
 	<target name="post_deploy">
+		<echo message="Changing permission g+w to ${ssh.documentroot}/typo3conf/ext"/>
 		<!-- change permissions for ext folder -->
 		<chmod perm="g+w">
 			<fileset dir="${ssh.documentroot}/typo3conf/ext">
