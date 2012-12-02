@@ -61,7 +61,7 @@
 		<move file="${ssh.documentroot}/typo3conf/ext_CURRENT" tofile="${ssh.documentroot}/typo3conf/ext"/>
 
 		<!-- deploy the logging config into docroot -->
-		<copy file="./ext/logging.xml" tofile="${build.dir}/logging.xml"/>
+		<copy file="./logging.xml" tofile="${build.dir}/logging.xml"/>
 		<echo file="${build.dir}/.htaccess">Deny from all</echo>
 		<mkdir dir="${ssh.documentroot}/log"/>
 		<antcall target="remote_copy">
@@ -75,11 +75,11 @@
 
 		<!-- deploy files in docroot -->
 		<antcall target="remote_copy">
-			<param name="sourcefile" value="${build.dir}/humans.txt"/>
+			<param name="sourcefile" value="./humans.txt"/>
 			<param name="remotedir" value="${ssh.documentroot}"/>
 		</antcall>
 		<antcall target="remote_copy">
-			<param name="sourcefile" value="${build.dir}/robots.txt"/>
+			<param name="sourcefile" value="./robots.txt"/>
 			<param name="remotedir" value="${ssh.documentroot}"/>
 		</antcall>
 
