@@ -15,7 +15,7 @@ table#logintable p.c-info {
 /* main frame */
 body#typo3-index-php #t3-login-form {
 	margin: 0;
-	padding: 25px 40px 35px 200px;
+	padding: 25px 40px 35px 250px;
 	position: absolute;
 	top: 250px;
 	left: 0;
@@ -73,7 +73,7 @@ body#typo3-index-php .t3-headline h2 {
 	letter-spacing: 1px;
 	text-transform: uppercase;
 	padding-left: 10px;
-	height: 25px;
+	height: 50px;
 	overflow: hidden;
 }
 
