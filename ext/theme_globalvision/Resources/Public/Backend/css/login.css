@@ -82,7 +82,7 @@ body#typo3-index-php #t3-login-process h2 {
 	color: #fff;
 	font-style: italic;
 	font-weight: normal;
-	background-image: url(../img/ajax-loader.gif);
+	background-image: url(../img/loading.png);
 }
 
 body#typo3-index-php .t3-login-field {
