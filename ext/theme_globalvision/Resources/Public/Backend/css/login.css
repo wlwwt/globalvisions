@@ -136,6 +136,7 @@ body#typo3-index-php #t3-footer {
 
 body#typo3-index-php div#t3-copyright-notice {
 	margin-top: 4px;
+        border-top: none;
 }
 
 body#typo3-index-php .t3-login-form-footer {
