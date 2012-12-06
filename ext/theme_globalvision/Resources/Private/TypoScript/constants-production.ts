@@ -14,7 +14,7 @@
 plugin.theme_configuration.company = Modern Package
 plugin.theme_configuration.popup = &copy; - Modern Package
 plugin.theme_configuration.title = Modern Package
-plugin.theme_configuration.url = http://localhost/master/
+plugin.theme_configuration.url = http://192.168.2.200/globalvisions/
 
 
 plugin.theme_configuration.navigation_service = 232
