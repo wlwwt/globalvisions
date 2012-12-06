@@ -103,6 +103,7 @@
 			<fileset dir="./ext/" followsymlinks="true" defaultexcludes="true">
 				<exclude name="**/.git/**"/>
 				<exclude name="**/.gitignore"/>
+				<exclude name="**/.gitmodules"/>
 				<exclude name="**/.idea/**"/>
 				<exclude name="**/nbproject/**"/>
 				<exclude name="**/ExtensionBuilder.json"/>
