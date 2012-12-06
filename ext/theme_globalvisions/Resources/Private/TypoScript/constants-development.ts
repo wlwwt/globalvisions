@@ -11,9 +11,9 @@
 # Constants of the DEVELOPMENT mode
 # **********************************************************
 
-plugin.theme_configuration.company = Modern Package
-plugin.theme_configuration.popup = &copy; - Modern Package
-plugin.theme_configuration.title = Modern Package
+plugin.theme_configuration.company = GlobalVisions
+plugin.theme_configuration.popup = &copy; - GlobalVisions
+plugin.theme_configuration.title = GlobalVisions
 plugin.theme_configuration.url = http://localhost/globalvisions/
 
 
@@ -25,10 +25,10 @@ plugin.theme_configuration.navigation.footer-right = 1,254,274,250
 plugin.theme_configuration.navigation.footer-left = 249
 plugin.theme_configuration.general.copyright_information.link = 242
 
-plugin.theme_configuration.extensions.indexed_search.form-target = 241
-plugin.theme_configuration.extensions.news.latest {
-	limit = 3
-	detailPid = 259
-	startingpoint = 260
-	cropMaxCharacters = 120
-}
+#plugin.theme_configuration.extensions.indexed_search.form-target = 241
+#plugin.theme_configuration.extensions.news.latest {
+#	limit = 3
+#	detailPid = 259
+#	startingpoint = 260
+#	cropMaxCharacters = 120
+#}
