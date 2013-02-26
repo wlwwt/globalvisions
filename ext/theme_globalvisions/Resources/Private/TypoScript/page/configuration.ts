@@ -67,12 +67,8 @@ config {
 	#stat_typeNumList = 0
 
 	headerComment (
-
-
-######################################################################
-#                   wlwwt.de - wir lieben was wir tun                #
-######################################################################
-	)
+        Thank you for reading our source code! Any suggestions or questions? please contact us: wolfgang.freund@wlwwt.de, www.wlwwt.de
+)
 
 
 }
